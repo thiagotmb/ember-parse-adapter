@@ -35,8 +35,7 @@ Features
 Get Started
 -----------
 
-You'll want to get an account at [Parse](https://parse.com). After this you will
-be provided with two keys:
+Create your [Parse Server ](https://github.com/ParsePlatform/parse-server). After this you will be provided with two keys:
 
 * Application ID
 * REST API Key
@@ -71,20 +70,6 @@ App.Post = DS.Model.extend({
 });
 ```
 
-Security Warning
-----------------
-Before publishing your app you should **disable REST Push**. Parse apps are created with this feature enabled by default. If this feature is enabled anyone with your `Application ID` and `REST API Key` will be able to send push notifications to your user's devices. Anyone using your app has access your `Application ID` and `REST API Key`.
-
-To disable REST Push:
-
-- Login to your Parse account.
-- Click on your application.
-- Go to Settings > Push.
-- And disable REST Push.
-- It should look like the image below.
-
-![](http://x.gcollazo.com/B5Qk40KL6m.png)
-
 Demo
 ----
 
@@ -111,9 +96,67 @@ Roadmap
 * Parse ACL implementation.
 
 
-How to use this addon in your application
+Installation 
 -----------------------------------------
 
 ```
 ember install:addon ember-parse-adapter
+```
+
+
+Setup 
+-----------------------------------------
+
+`config/environment.js` file:
+
+```javascript
+var ENV = {
+  ...
+
+  APP: {
+    applicationId: '<YOUR APP ID HERE>',
+    restApiId: '<YOUR REST API KEY HERE>'
+  }
+};
+```
+
+
+ParseUser Usage  
+-----------------------------------------
+
+# Login User 
+
+```javascript
+ ParseUser.login( store , data ).then(
+             function( user ) {
+               console.log(user)
+                   console.log("success")
+                   console.log(user.get('sessionToken'))
+             },
+             function( error ) {
+               console.log(error)              
+             }
+           );
+```
+
+
+# Create User 
+
+```javascript
+var ParseUser  = this.store.modelFor( 'parse-user' ),
+        data       = {
+          username: this.get( 'username' ),
+          password: this.get( 'password' ),
+          email: this.get( 'email' )
+        };
+
+      ParseUser.signup( this.store, data ).then(
+        function( user ){
+          console.log( "success");
+          console.log(user );
+        },
+        function( error ) {
+          console.log( error);
+        }
+      );
 ```
