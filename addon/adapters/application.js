@@ -12,14 +12,19 @@ export default DS.RESTAdapter.extend({
       'X-Parse-Application-Id' : Ember.get( this, 'applicationId' ),
       'X-Parse-REST-API-Key'   : Ember.get( this, 'restApiId' )
     });
+
+    this.set('host', Ember.get( this, 'host' ) )
+        this.set('namespace', Ember.get( this, 'namespace' ) )
   },
 
-  host: 'https://api.parse.com',
+  // host: 'https://api.parse.com',
+
+  // namespace: '1',
 
   classesPath: 'classes',
 
   pathForType: function( type ) {
-    if ( 'parseUser' === type ) {
+    if ( 'parse-user' === type ) {
       return 'users';
     } else if ( 'login' === type ) {
       return 'login';
@@ -41,6 +46,12 @@ export default DS.RESTAdapter.extend({
   * latest data.
   */
   createRecord: function( store, type, record ) {
+
+    console.log("CREATE RECORD ===== ")
+        console.log(store)
+        console.log(type)
+        console.log(record)
+
     var serializer = store.serializerFor( type.typeKey ),
       data       = {},
       adapter    = this;

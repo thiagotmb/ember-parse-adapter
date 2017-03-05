@@ -41,17 +41,8 @@ ParseUser.reopenClass({
 
     return adapter.ajax( adapter.buildURL( 'login' ), 'GET', { data: data } ).then(
       function( response ) {
-        console.log(response)
-        console.log(serializer)
-                console.log(model)
         var serialized = serializer.normalize( model, response );
-                        console.log(serializer.normalize( model, response ))
-
-                                console.log(store)
-
-        var record = store.push( serialized);
-                                console.log(record)
-
+        var record = store.push(serialized);
         return record;
       },
       function( response ) {
@@ -62,19 +53,19 @@ ParseUser.reopenClass({
 
   signup: function( store, data ) {
     var model      = this,
-        adapter    = store.adapterFor(model),
-        serializer = store.serializerFor(model);
+        adapter    = store.adapterFor(model.modelName),
+        serializer = store.serializerFor(model.modelName);
 
-    if ( Ember.isEmpty( this.typeKey ) ) {
+    if ( Ember.isEmpty( this.modelName ) ) {
       throw new Error( 'Parse signup must be called on a model fetched via store.modelFor' );
     }
 
-    return adapter.ajax( adapter.buildURL( model.typeKey ), 'POST', { data: data } ).then(
+    return adapter.ajax( adapter.buildURL( model.modelName ), 'POST', { data: data } ).then(
       function( response ) {
-        serializer.normalize( model, response );
+        var serialized = serializer.normalize( model, response );
         response.email = response.email || data.email;
         response.username = response.username || data.username;
-        var record = store.push( model, response );
+        var record = store.push(serialized);
         return record;
       },
       function( response ) {
