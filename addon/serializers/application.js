@@ -5,14 +5,56 @@ export default DS.RESTSerializer.extend({
 
   primaryKey: 'objectId',
 
-  extractArray: function( store, primaryType, payload ) {
+  // normalize:  function(modelClass, resourceHash, prop)  {
+  //   console.log(prop)
+  //   console.log(modelClass)
+  //   console.log(resourceHash)
+  //   console.log(prop)
+  //   return this._super(...arguments);
+  // }
+
+//   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
+//     // console.log("normalizeResponse")
+//     //
+//     //   console.log(store)
+//     //   console.log("primaryModelClass")
+//     //
+//       console.log(primaryModelClass)
+//         console.log(primaryModelClass.modelName)
+//     //
+//     //   console.log("payload")
+//     //
+//     //   console.log(payload)
+//     //   console.log("id")
+//     //
+//     //   console.log(id)
+//     //   console.log("requestType")
+//     //
+//     //   console.log(requestType)
+//       var modelName = primaryModelClass.modelName
+//
+//       console.log(modelName.toString())
+//       console.log(modelName.toISOString())
+//       console.log(modelName.toString)
+//       console.log(modelName.toISOString)
+//
+//       var payload = {};
+//       payload[ Ember.String.pluralize( modelName ) ] = payload.results;
+//
+//   return this._super(store, primaryModelClass, payload, id, requestType);
+// },
+
+  normalizeArrayResponse: function( store, primaryType, payload ) {
+    console.log("extractArray")
     var namespacedPayload = {};
-    namespacedPayload[ Ember.String.pluralize( primaryType.typeKey ) ] = payload.results;
+    namespacedPayload[ Ember.String.pluralize( primaryType.modelName ) ] = payload.results;
 
     return this._super( store, primaryType, namespacedPayload );
   },
 
-  extractSingle: function( store, primaryType, payload, recordId ) {
+  normalizeSingleResponse: function( store, primaryType, payload, recordId ) {
+    console.log("extractSingle")
+
     var namespacedPayload = {};
     namespacedPayload[ primaryType.typeKey ] = payload; // this.normalize(primaryType, payload);
 
@@ -20,6 +62,8 @@ export default DS.RESTSerializer.extend({
   },
 
   typeForRoot: function( key ) {
+    console.log("typeForRoot")
+
     return Ember.String.dasherize( Ember.String.singularize( key ) );
   },
 
@@ -29,6 +73,8 @@ export default DS.RESTSerializer.extend({
   * record ID we are dealing with (using the primaryKey).
   */
   extract: function( store, type, payload, id, requestType ) {
+    console.log("extract")
+
     if( id !== null && ( 'updateRecord' === requestType || 'deleteRecord' === requestType ) ) {
       payload[ this.get( 'primaryKey' ) ] = id;
     }
@@ -41,10 +87,23 @@ export default DS.RESTSerializer.extend({
   * of records in Parse if you're using skip and limit.
   */
   extractMeta: function( store, type, payload ) {
+    console.log("extractMeta")
+
+
+
     if ( payload && payload.count ) {
-      store.metaForType( type, { count: payload.count } );
+      store.metadataFor( type, { count: payload.count } );
       delete payload.count;
     }
+
+    console.log(payload)
+    console.log(payload.results)
+    if (payload && payload.results) {
+      payload = payload.results
+    }
+    console.log(payload)
+
+
   },
 
   /**
@@ -52,6 +111,8 @@ export default DS.RESTSerializer.extend({
   * Parse responses.
   */
   normalizeAttributes: function( type, hash ) {
+    console.log("normalizeAttributes")
+
     type.eachAttribute( function( key, meta ) {
       if ( 'date' === meta.type && 'object' === Ember.typeOf( hash[key] ) && hash[key].iso ) {
         hash[key] = hash[key].iso; //new Date(hash[key].iso).toISOString();
@@ -67,6 +128,8 @@ export default DS.RESTSerializer.extend({
   * side of the "hasMany".
   */
   normalizeRelationships: function( type, hash ) {
+    console.log("normalizeRelationships")
+
     var store      = this.get('store'),
       serializer = this;
 
@@ -122,10 +185,14 @@ export default DS.RESTSerializer.extend({
   },
 
   serializeIntoHash: function( hash, type, record, options ) {
+    console.log("serializeIntoHash")
+
     Ember.merge( hash, this.serialize( record, options ) );
   },
 
   serializeAttribute: function( record, json, key, attribute ) {
+    console.log("serializeAttribute")
+
     // These are Parse reserved properties and we won't send them.
     if ( 'createdAt' === key ||
          'updatedAt' === key ||
@@ -140,6 +207,8 @@ export default DS.RESTSerializer.extend({
   },
 
   serializeBelongsTo: function( record, json, relationship ) {
+    console.log("serializeBelongsTo")
+
     var key       = relationship.key,
       belongsTo = record.get( key );
 
@@ -163,6 +232,8 @@ export default DS.RESTSerializer.extend({
   },
 
   parseClassName: function( key ) {
+    console.log("parseClassName")
+
     if ( 'parseUser' === key) {
       return '_User';
 
@@ -172,6 +243,8 @@ export default DS.RESTSerializer.extend({
   },
 
   serializeHasMany: function( record, json, relationship ) {
+    console.log("serializeHasMany")
+
     var key     = relationship.key,
       hasMany = record.get( key ),
       options = relationship.options;

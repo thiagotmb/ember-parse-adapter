@@ -16,14 +16,10 @@ export default DS.RESTAdapter.extend({
     this.set('host', Ember.get( this, 'host' ) )
         this.set('namespace', Ember.get( this, 'namespace' ) )
   },
-
-  // host: 'https://api.parse.com',
-
-  // namespace: '1',
-
   classesPath: 'classes',
 
   pathForType: function( type ) {
+
     if ( 'parse-user' === type ) {
       return 'users';
     } else if ( 'login' === type ) {
@@ -36,6 +32,7 @@ export default DS.RESTAdapter.extend({
   // Using TitleStyle is recommended by Parse
   // @TODO: test
   parsePathForType: function( type ) {
+
     return Ember.String.capitalize( Ember.String.camelize( type ) );
   },
 
@@ -46,7 +43,8 @@ export default DS.RESTAdapter.extend({
   * latest data.
   */
   createRecord: function( store, type, record ) {
-    
+
+    console.log("createRecord")
     var serializer = store.serializerFor( type.typeKey ),
       data       = {},
       adapter    = this;
@@ -73,6 +71,9 @@ export default DS.RESTAdapter.extend({
   * latest data.
   */
   updateRecord: function(store, type, record) {
+
+    console.log("updateRecord")
+
     var serializer  = store.serializerFor( type.typeKey ),
       id          = record.get( 'id' ),
       sendDeletes = false,
@@ -124,6 +125,8 @@ export default DS.RESTAdapter.extend({
   },
 
   parseClassName: function (key ) {
+    console.log("parseClassName")
+
     return Ember.String.capitalize( key );
   },
 
@@ -132,6 +135,8 @@ export default DS.RESTAdapter.extend({
   * objects.
   */
   findHasMany: function( store, record, relatedInfo ) {
+    console.log("findHasMany")
+
     var query = {
         where: {
           '$relatedTo': {
@@ -166,6 +171,8 @@ export default DS.RESTAdapter.extend({
   *     });
   */
   findQuery: function ( store, type, query ) {
+    console.log("findQuery")
+
     if ( query.where && 'string' !== Ember.typeOf( query.where ) ) {
       query.where = JSON.stringify( query.where );
     }

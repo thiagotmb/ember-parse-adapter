@@ -17,7 +17,10 @@ var ParseUser = DS.Model.extend({
 });
 
 ParseUser.reopenClass({
+
   requestPasswordReset: function( email ) {
+    console.log("requestPasswordReset")
+
     var adapter = this.get( 'store' ).adapterFor( this ),
         data    = { email: email };
 
@@ -43,8 +46,6 @@ ParseUser.reopenClass({
       function( response ) {
         var serialized = serializer.normalize( model, response );
         var record = store.push(serialized);
-        console.log(record)
-        console.log(serialized)
         return record;
       },
       function( response ) {
