@@ -5,47 +5,7 @@ export default DS.RESTSerializer.extend({
 
   primaryKey: 'objectId',
 
-  // normalize:  function(modelClass, resourceHash, prop)  {
-  //   console.log(prop)
-  //   console.log(modelClass)
-  //   console.log(resourceHash)
-  //   console.log(prop)
-  //   return this._super(...arguments);
-  // }
-
-//   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
-//     // console.log("normalizeResponse")
-//     //
-//     //   console.log(store)
-//     //   console.log("primaryModelClass")
-//     //
-//       console.log(primaryModelClass)
-//         console.log(primaryModelClass.modelName)
-//     //
-//     //   console.log("payload")
-//     //
-//     //   console.log(payload)
-//     //   console.log("id")
-//     //
-//     //   console.log(id)
-//     //   console.log("requestType")
-//     //
-//     //   console.log(requestType)
-//       var modelName = primaryModelClass.modelName
-//
-//       console.log(modelName.toString())
-//       console.log(modelName.toISOString())
-//       console.log(modelName.toString)
-//       console.log(modelName.toISOString)
-//
-//       var payload = {};
-//       payload[ Ember.String.pluralize( modelName ) ] = payload.results;
-//
-//   return this._super(store, primaryModelClass, payload, id, requestType);
-// },
-
   normalizeArrayResponse: function( store, primaryType, payload ) {
-    console.log("extractArray")
     var namespacedPayload = {};
     namespacedPayload[ Ember.String.pluralize( primaryType.modelName ) ] = payload.results;
 
@@ -56,7 +16,7 @@ export default DS.RESTSerializer.extend({
     console.log("extractSingle")
 
     var namespacedPayload = {};
-    namespacedPayload[ primaryType.typeKey ] = payload; // this.normalize(primaryType, payload);
+    namespacedPayload[ primaryType.modelName ] = payload; // this.normalize(primaryType, payload);
 
     return this._super( store, primaryType, namespacedPayload, recordId );
   },
@@ -89,8 +49,6 @@ export default DS.RESTSerializer.extend({
   extractMeta: function( store, type, payload ) {
     console.log("extractMeta")
 
-
-
     if ( payload && payload.count ) {
       store.metadataFor( type, { count: payload.count } );
       delete payload.count;
@@ -102,7 +60,6 @@ export default DS.RESTSerializer.extend({
       payload = payload.results
     }
     console.log(payload)
-
 
   },
 
@@ -225,7 +182,7 @@ export default DS.RESTSerializer.extend({
 
       json[key] = {
         '__type'    : 'Pointer',
-        'className' : this.parseClassName( belongsTo.constructor.typeKey ),
+        'className' : this.parseClassName( belongsTo.constructor.modelName ),
         'objectId'  : belongsTo.get( 'id' )
       };
     }
