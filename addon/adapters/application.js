@@ -45,14 +45,14 @@ export default DS.RESTAdapter.extend({
   createRecord: function( store, type, record ) {
 
     console.log("createRecord")
-    var serializer = store.serializerFor( type.typeKey ),
+    var serializer = store.serializerFor( type.modelName ),
       data       = {},
       adapter    = this;
 
     serializer.serializeIntoHash( data, type, record, { includeId: true } );
 
     return new Ember.RSVP.Promise( function( resolve, reject ) {
-      adapter.ajax( adapter.buildURL( type.typeKey ), 'POST', { data: data } ).then(
+      adapter.ajax( adapter.buildURL( type.modelName ), 'POST', { data: data } ).then(
         function( json ) {
           var completed = Ember.merge( data, json );
           resolve( completed );
@@ -74,8 +74,8 @@ export default DS.RESTAdapter.extend({
 
     console.log("updateRecord")
 
-    var serializer  = store.serializerFor( type.typeKey ),
-      id          = record.get( 'id' ),
+    var serializer  = store.serializerFor( type.modelName ),
+      id          = Ember.get(record, "id"),
       sendDeletes = false,
       deleteds    = {},
       data        = {},
@@ -93,10 +93,13 @@ export default DS.RESTAdapter.extend({
 
     return new Ember.RSVP.Promise( function( resolve, reject ) {
       if ( sendDeletes ) {
-        adapter.ajax( adapter.buildURL( type.typeKey, id ), 'PUT', { data: deleteds } ).then(
+        adapter.ajax( adapter.buildURL( type.modelName, id ), 'PUT', { data: deleteds } ).then(
           function() {
-            adapter.ajax( adapter.buildURL( type.typeKey, id ), 'PUT', { data: data } ).then(
+            adapter.ajax( adapter.buildURL( type.modelName, id ), 'PUT', { data: data } ).then(
               function( updates ) {
+                console.log("saved")
+                console.log(data)
+                console.log(updates)
                 // This is the essential bit - merge response data onto existing data.
                 resolve( Ember.merge( data, updates ) );
               },
@@ -111,7 +114,7 @@ export default DS.RESTAdapter.extend({
         );
 
       } else {
-        adapter.ajax( adapter.buildURL( type.typeKey, id ), 'PUT', { data: data } ).then(
+        adapter.ajax( adapter.buildURL( type.modelName, id ), 'PUT', { data: data } ).then(
           function( json ) {
             // This is the essential bit - merge response data onto existing data.
             resolve( Ember.merge( data, json ) );
@@ -142,7 +145,7 @@ export default DS.RESTAdapter.extend({
           '$relatedTo': {
             'object': {
               '__type'    : 'Pointer',
-              'className' : this.parseClassName( record.typeKey ),
+              'className' : this.parseClassName( record.modelName ),
               'objectId'  : record.get( 'id' )
             },
             key: relatedInfo.key
@@ -152,7 +155,7 @@ export default DS.RESTAdapter.extend({
 
     // the request is to the related type and not the type for the record.
     // the query is where there is a pointer to this record.
-    return this.ajax( this.buildURL( relatedInfo.type.typeKey ), 'GET', { data: query } );
+    return this.ajax( this.buildURL( relatedInfo.type.modelName ), 'GET', { data: query } );
   },
 
   /**

@@ -53,14 +53,9 @@ export default DS.RESTSerializer.extend({
       store.metadataFor( type, { count: payload.count } );
       delete payload.count;
     }
-
     console.log(payload)
-    console.log(payload.results)
-    if (payload && payload.results) {
-      payload = payload.results
-    }
-    console.log(payload)
-
+    console.log(type)
+    console.log(store)
   },
 
   /**
