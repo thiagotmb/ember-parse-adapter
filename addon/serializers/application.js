@@ -32,14 +32,14 @@ export default DS.RESTSerializer.extend({
   * we have to intercept it here to assure that the adapter knows which
   * record ID we are dealing with (using the primaryKey).
   */
-  extract: function( store, type, payload, id, requestType ) {
-    console.log("extract")
+  normalizeResponse: function( store, primaryModelClass, payload, id, requestType ) {
+    console.log("normalizeResponse")
 
     if( id !== null && ( 'updateRecord' === requestType || 'deleteRecord' === requestType ) ) {
       payload[ this.get( 'primaryKey' ) ] = id;
     }
 
-    return this._super( store, type, payload, id, requestType );
+    return this._super( store, primaryModelClass, payload, id, requestType );
   },
 
   /**

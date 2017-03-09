@@ -97,7 +97,7 @@ export default DS.RESTAdapter.extend({
           function() {
             adapter.ajax( adapter.buildURL( type.modelName, id ), 'PUT', { data: data } ).then(
               function( updates ) {
-                console.log("saved")
+                console.log("sendDeletes")
                 console.log(data)
                 console.log(updates)
                 // This is the essential bit - merge response data onto existing data.
@@ -116,6 +116,8 @@ export default DS.RESTAdapter.extend({
       } else {
         adapter.ajax( adapter.buildURL( type.modelName, id ), 'PUT', { data: data } ).then(
           function( json ) {
+            console.log("setupIUpdate")
+            console.log(json)
             // This is the essential bit - merge response data onto existing data.
             resolve( Ember.merge( data, json ) );
           },
