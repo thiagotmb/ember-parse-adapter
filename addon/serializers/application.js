@@ -6,6 +6,8 @@ export default DS.RESTSerializer.extend({
   primaryKey: 'objectId',
 
   normalizeArrayResponse: function( store, primaryType, payload ) {
+    console.log("normalizeArrayResponse")
+
     var namespacedPayload = {};
     namespacedPayload[ Ember.String.pluralize( primaryType.modelName ) ] = payload.results;
 
@@ -13,7 +15,7 @@ export default DS.RESTSerializer.extend({
   },
 
   normalizeSingleResponse: function( store, primaryType, payload, recordId ) {
-    console.log("extractSingle")
+    console.log("normalizeSingleResponse")
 
     var namespacedPayload = {};
     namespacedPayload[ primaryType.modelName ] = payload; // this.normalize(primaryType, payload);
@@ -21,8 +23,8 @@ export default DS.RESTSerializer.extend({
     return this._super( store, primaryType, namespacedPayload, recordId );
   },
 
-  typeForRoot: function( key ) {
-    console.log("typeForRoot")
+  modelNameFromPayloadKey: function( key ) {
+    console.log("modelNameFromPayloadKey")
 
     return Ember.String.dasherize( Ember.String.singularize( key ) );
   },
@@ -53,24 +55,24 @@ export default DS.RESTSerializer.extend({
       store.metadataFor( type, { count: payload.count } );
       delete payload.count;
     }
-    console.log(payload)
-    console.log(type)
-    console.log(store)
   },
 
   /**
   * Special handling for the Date objects inside the properties of
   * Parse responses.
   */
-  normalizeAttributes: function( type, hash ) {
+  extractAttributes: function( type, hash ) {
     console.log("normalizeAttributes")
+    console.log(type)
+    console.log(hash)
 
     type.eachAttribute( function( key, meta ) {
+
+
       if ( 'date' === meta.type && 'object' === Ember.typeOf( hash[key] ) && hash[key].iso ) {
         hash[key] = hash[key].iso; //new Date(hash[key].iso).toISOString();
       }
     });
-
     this._super( type, hash );
   },
 
@@ -79,18 +81,29 @@ export default DS.RESTSerializer.extend({
   * conditions there is a secondary query to retrieve the "many"
   * side of the "hasMany".
   */
-  normalizeRelationships: function( type, hash ) {
+  extractRelationships: function( type, hash ) {
     console.log("normalizeRelationships")
+    console.log(type)
+    console.log(hash)
 
     var store      = this.get('store'),
       serializer = this;
 
+
     type.eachRelationship( function( key, relationship ) {
+      console.log("type.eachRelationship")
+
+      console.log(key)
+      console.log(relationship)
+      console.log(relationship.options)
+      console.log(relationship.kind)
 
       var options = relationship.options;
 
       // Handle the belongsTo relationships
       if ( hash[key] && 'belongsTo' === relationship.kind ) {
+        console.log(hash[key].objectId)
+
         hash[key] = hash[key].objectId;
       }
 
@@ -123,17 +136,24 @@ export default DS.RESTSerializer.extend({
                 item.id = item.objectId;
                 delete item.objectId;
                 item.type = relationship.type;
-                serializer.normalizeAttributes( relationship.type, item );
-                serializer.normalizeRelationships( relationship.type, item );
+                serializer.extractAttributes( relationship.type, item );
+                serializer.extractRelationships( relationship.type, item );
                 store.push( relationship.type, item );
               }
             });
           }
         }
       }
+
+      console.log("here")
     }, this );
+    console.log("here 2")
+    console.log(hash)
+
 
     this._super( type, hash );
+    console.log("hash")
+
   },
 
   serializeIntoHash: function( hash, type, record, options ) {
