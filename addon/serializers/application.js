@@ -62,18 +62,13 @@ export default DS.RESTSerializer.extend({
   * Parse responses.
   */
   extractAttributes: function( type, hash ) {
-    console.log("normalizeAttributes")
-    console.log(type)
-    console.log(hash)
-
+    console.log("extractAttributes")
     type.eachAttribute( function( key, meta ) {
-
-
       if ( 'date' === meta.type && 'object' === Ember.typeOf( hash[key] ) && hash[key].iso ) {
         hash[key] = hash[key].iso; //new Date(hash[key].iso).toISOString();
       }
     });
-    this._super( type, hash );
+    return hash
   },
 
   /**
@@ -101,10 +96,14 @@ export default DS.RESTSerializer.extend({
       var options = relationship.options;
 
       // Handle the belongsTo relationships
+
+      console.log(hash[key] && 'belongsTo' === relationship.kind)
       if ( hash[key] && 'belongsTo' === relationship.kind ) {
         console.log(hash[key].objectId)
+        var item = hash[key]
+        this.handleRelationshipPayload(item, hash, key, relationship, serializer,store)
 
-        hash[key] = hash[key].objectId;
+        // hash[key] = hash[key].objectId;
       }
 
       // Handle the hasMany relationships
@@ -125,21 +124,23 @@ export default DS.RESTSerializer.extend({
             hash[key].forEach( function( item, index, items ) {
               // When items are pointers we just need the id
               // This occurs when request was made without the include query param.
-              if ( 'Pointer' === item.__type ) {
-                items[index] = item.objectId;
+              // if ( 'Pointer' === item.__type ) {
+              //   items[index] = item.objectId;
+              //
+              // } else {
+              //   // When items are objects we need to clean them and add them to the store.
+              //   // This occurs when request was made with the include query param.
+              //   delete item.__type;
+              //   delete item.className;
+              //   item.id = item.objectId;
+              //   delete item.objectId;
+              //   item.type = relationship.type;
+              //   serializer.extractAttributes( relationship.type, item );
+              //   serializer.extractRelationships( relationship.type, item );
+              //   store.push( relationship.type, item );
+              // }
 
-              } else {
-                // When items are objects we need to clean them and add them to the store.
-                // This occurs when request was made with the include query param.
-                delete item.__type;
-                delete item.className;
-                item.id = item.objectId;
-                delete item.objectId;
-                item.type = relationship.type;
-                serializer.extractAttributes( relationship.type, item );
-                serializer.extractRelationships( relationship.type, item );
-                store.push( relationship.type, item );
-              }
+              handleRelationshipPayload(item, hash, index, relationship, serializer,store)
             });
           }
         }
@@ -151,8 +152,31 @@ export default DS.RESTSerializer.extend({
     console.log(hash)
 
 
-    this._super( type, hash );
+    return hash
     console.log("hash")
+
+  },
+
+  handleRelationshipPayload: function(item, hash, key, relationship,  serializer, store) {
+
+    if ( 'Pointer' === item.__type ) {
+      hash[key] = item.objectId;
+
+    } else {
+      // When items are objects we need to clean them and add them to the store.
+      // This occurs when request was made with the include query param.
+      delete item.__type;
+      delete item.className;
+      item.id = item.objectId;
+      delete item.objectId;
+      item.type = relationship.type;
+      var modelType = store.modelFor(relationship.type)
+      serializer.extractAttributes( modelType, item );
+      serializer.extractRelationships( modelType, item );
+      var serialized = serializer.normalize( modelType, item );
+      serialized.data.id = item["id"]
+      store.push(serialized);
+    }
 
   },
 
