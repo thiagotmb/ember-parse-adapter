@@ -135,12 +135,24 @@ export default DS.RESTAdapter.extend({
     return Ember.String.capitalize( key );
   },
 
+
+  urlForFindHasMany(id, modelName, snapshot) {
+    debugger
+    return `http://www.google.com`;
+},
+
+findHasMany: function(store, type, ids, snapshots) {
+debugger
+  return this.ajax( this.buildURL( type.modelName ), 'GET', { } );
+
+},
   /**
   * Implementation of a hasMany that provides a Relation query for Parse
   * objects.
   */
-  findHasMany: function( store, record, relatedInfo ) {
+  findHasMany: function( store, record, relatedInfo, url ) {
     console.log("findHasMany")
+    debugger;
 
     var query = {
         where: {

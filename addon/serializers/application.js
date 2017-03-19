@@ -77,7 +77,10 @@ export default DS.RESTSerializer.extend({
   * side of the "hasMany".
   */
   extractRelationships: function( type, hash ) {
-    console.log("normalizeRelationships")
+
+
+
+    console.log("extractRelationships")
 
     var store      = this.get('store'),
       serializer = this;
@@ -91,7 +94,6 @@ export default DS.RESTSerializer.extend({
           hash[key] = this.normalizeRelationshipObject(item,relationship, serializer, store)
       }
 
-      debugger;
       // Handle the hasMany relationships
       if ( hash[key] && 'hasMany' === relationship.kind ) {
 
@@ -99,11 +101,23 @@ export default DS.RESTSerializer.extend({
         // the links property so the adapter can async call the
         // relationship.
         // The adapter findHasMany has been overridden to make use of this.
-        debugger;
         if ( options.relation ) {
           console.log("options.relation")
-          hash.links = {};
-          hash.links[key] = { type: relationship.type, key: key };
+          // hash.links = {
+          //       [key]: "https://googlw.com/addresses"
+          // };
+
+          hash[key] = ["ByKxawvc53", "mN5eOVNAxH"]
+          // hash.relationships = {
+          //       [key]: {
+          //         links : {
+          //           related: "/dois"
+          //         }
+          //       }
+          // };
+
+          // delete hash[key]
+          // hash.links[key] = { self: relationship.type, related: key };
 
         }
 
@@ -122,7 +136,7 @@ export default DS.RESTSerializer.extend({
       }
 
     }, this );
-
+    debugger;
     return hash
 
   },
@@ -159,11 +173,6 @@ export default DS.RESTSerializer.extend({
     return relatedObject
 
   },
-  // handleRelationshipPayload: function(item, hash, key, relationship,  serializer, store) {
-  //   //console.log("handleRelationshipPayload")
-  //
-  //
-  // },
 
   serializeIntoHash: function( hash, type, record, options ) {
     //console.log("serializeIntoHash")
@@ -224,7 +233,7 @@ export default DS.RESTSerializer.extend({
   },
 
   serializeHasMany: function( record, json, relationship ) {
-    //console.log("serializeHasMany")
+    console.log("serializeHasMany")
 
     var key     = relationship.key,
       hasMany = record.get( key ),
