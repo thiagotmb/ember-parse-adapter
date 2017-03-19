@@ -32,7 +32,7 @@ export default DS.RESTAdapter.extend({
   // Using TitleStyle is recommended by Parse
   // @TODO: test
   parsePathForType: function( type ) {
-
+      console.log("parse path for type")
     return Ember.String.capitalize( Ember.String.camelize( type ) );
   },
 
@@ -176,7 +176,7 @@ export default DS.RESTAdapter.extend({
   *     });
   */
   query: function ( store, type, query ) {
-
+    console.log("query")
     if ( query.where && 'string' !== Ember.typeOf( query.where ) ) {
       query.where = JSON.stringify( query.where );
     }
