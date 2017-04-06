@@ -136,7 +136,6 @@ export default DS.RESTSerializer.extend({
       }
 
     }, this );
-    debugger;
     return hash
 
   },

@@ -135,13 +135,11 @@ export default DS.RESTAdapter.extend({
   },
 
 
-  urlForFindHasMany(id, modelName, snapshot) {
-    debugger
-    return `http://www.google.com`;
-},
+//   urlForFindHasMany(id, modelName, snapshot) {
+//     return `http://www.google.com`;
+// },
 
 findHasMany: function(store, type, ids, snapshots) {
-debugger
   return this.ajax( this.buildURL( type.modelName ), 'GET', { } );
 
 },
@@ -151,7 +149,6 @@ debugger
   */
   findHasMany: function( store, record, relatedInfo, url ) {
     console.log("findHasMany")
-    debugger;
 
     var query = {
         where: {
