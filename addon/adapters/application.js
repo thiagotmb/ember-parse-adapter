@@ -9,12 +9,11 @@ export default DS.RESTAdapter.extend({
     this._super();
 
     this.set( 'headers', {
-      'X-Parse-Application-Id' : Ember.get( this, 'applicationId' ),
-      'X-Parse-REST-API-Key'   : Ember.get( this, 'restApiId' )
+      'X-Parse-Application-Id' : Ember.get( this, 'applicationId' )
     });
 
     this.set('host', Ember.get( this, 'host' ) )
-        this.set('namespace', Ember.get( this, 'namespace' ) )
+    this.set('namespace', Ember.get( this, 'namespace' ) )
   },
   classesPath: 'classes',
 
@@ -123,13 +122,11 @@ export default DS.RESTAdapter.extend({
   },
 
 
-  urlForFindHasMany(id, modelName, snapshot) {
-    debugger
-    return `http://www.google.com`;
-},
+//   urlForFindHasMany(id, modelName, snapshot) {
+//     return `http://www.google.com`;
+// },
 
 findHasMany: function(store, type, ids, snapshots) {
-debugger
   return this.ajax( this.buildURL( type.modelName ), 'GET', { } );
 
 },
