@@ -1,4 +1,4 @@
-import transform from 'ember-parse/transforms/file';
+import transform from 'ember-parse-adapter/transforms/file';
 
 /** @module transforms/file */
 export default transform;

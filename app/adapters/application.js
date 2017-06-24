@@ -1,4 +1,4 @@
-import adapter from 'ember-parse/adapters/application';
+import adapter from 'ember-parse-adapter/adapters/application';
 import Config from '../config/environment';
 
 /** @module adapters/application */

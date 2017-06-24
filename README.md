@@ -1,11 +1,11 @@
-# ember-parse
+# ember-parse-adapter
 
 This README outlines the details of collaborating on this Ember addon.
 
 ## Installation
 
 * `git clone <repository-url>` this repository
-* `cd ember-parse`
+* `cd ember-parse-adapter`
 * `npm install`
 * `bower install`
 
