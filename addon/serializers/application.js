@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import RESTSerializer from 'ember-data/serializers/rest';
 import DS from 'ember-data';
 
 export default DS.RESTSerializer.extend({
@@ -6,26 +7,18 @@ export default DS.RESTSerializer.extend({
   primaryKey: 'objectId',
 
   normalizeArrayResponse: function( store, primaryType, payload ) {
-    console.log("normalizeArrayResponse")
-
     var namespacedPayload = {};
     namespacedPayload[ Ember.String.pluralize( primaryType.modelName ) ] = payload.results;
-
     return this._super( store, primaryType, namespacedPayload );
   },
 
   normalizeSingleResponse: function( store, primaryType, payload, recordId ) {
-    console.log("normalizeSingleResponse")
-
     var namespacedPayload = {};
     namespacedPayload[ primaryType.modelName ] = payload; // this.normalize(primaryType, payload);
-
     return this._super( store, primaryType, namespacedPayload, recordId );
   },
 
   modelNameFromPayloadKey: function( key ) {
-    //console.log("modelNameFromPayloadKey")
-
     return Ember.String.dasherize( Ember.String.singularize( key ) );
   },
 
@@ -35,12 +28,9 @@ export default DS.RESTSerializer.extend({
   * record ID we are dealing with (using the primaryKey).
   */
   normalizeResponse: function( store, primaryModelClass, payload, id, requestType ) {
-    console.log("normalizeResponse")
-
     if( id !== null && ( 'updateRecord' === requestType || 'deleteRecord' === requestType ) ) {
       payload[ this.get( 'primaryKey' ) ] = id;
     }
-
     return this._super( store, primaryModelClass, payload, id, requestType );
   },
 
@@ -49,20 +39,16 @@ export default DS.RESTSerializer.extend({
   * of records in Parse if you're using skip and limit.
   */
   extractMeta: function( store, type, payload ) {
-    console.log("extractMeta")
-
     if ( payload && payload.count ) {
       store.metadataFor( type, { count: payload.count } );
       delete payload.count;
     }
   },
-
   /**
   * Special handling for the Date objects inside the properties of
   * Parse responses.
   */
   extractAttributes: function( type, hash ) {
-    console.log("extractAttributes")
     type.eachAttribute( function( key, meta ) {
       if ( 'date' === meta.type && 'object' === Ember.typeOf( hash[key] ) && hash[key].iso ) {
         hash[key] = hash[key].iso; //new Date(hash[key].iso).toISOString();
@@ -70,33 +56,22 @@ export default DS.RESTSerializer.extend({
     });
     return hash
   },
-
   /**
   * Special handling of the Parse relation types. In certain
   * conditions there is a secondary query to retrieve the "many"
   * side of the "hasMany".
   */
   extractRelationships: function( type, hash ) {
-
-
-
-    console.log("extractRelationships")
-
     var store      = this.get('store'),
       serializer = this;
-
     type.eachRelationship( function( key, relationship ) {
-
       var options = relationship.options;
-
       if ( hash[key] && 'belongsTo' === relationship.kind ) {
           var item = hash[key]
           hash[key] = this.normalizeRelationshipObject(item,relationship, serializer, store)
       }
-
       // Handle the hasMany relationships
       if ( hash[key] && 'hasMany' === relationship.kind ) {
-
         // If this is a Relation hasMany then we need to supply
         // the links property so the adapter can async call the
         // relationship.
@@ -106,7 +81,6 @@ export default DS.RESTSerializer.extend({
           // hash.links = {
           //       [key]: "https://googlw.com/addresses"
           // };
-
           hash[key] = ["ByKxawvc53", "mN5eOVNAxH"]
           // hash.relationships = {
           //       [key]: {
@@ -118,33 +92,26 @@ export default DS.RESTSerializer.extend({
 
           // delete hash[key]
           // hash.links[key] = { self: relationship.type, related: key };
-
         }
-
         if ( options.array ) {
           console.log("options.array")
-
           // Parse will return [null] for empty relationships
           if ( hash[key].length && hash[key] ) {
             hash[key].forEach( function( item, index, items ) {
               // When items are pointers we just need the id
               hash[key][index] = this.normalizeRelationshipObject(item,relationship, serializer, store)
-
             });
           }
         }
       }
 
     }, this );
-    debugger;
     return hash
 
   },
 
 
   normalizeRelationshipObject: function(item, relationship, serializer, store  ) {
-
-
     delete item.__type;
     delete item.className;
     item.id = item.objectId;
@@ -171,18 +138,13 @@ export default DS.RESTSerializer.extend({
     }
 
     return relatedObject
-
   },
 
   serializeIntoHash: function( hash, type, record, options ) {
-    //console.log("serializeIntoHash")
-
     Ember.merge( hash, this.serialize( record, options ) );
   },
 
   serializeAttribute: function( record, json, key, attribute ) {
-    //console.log("serializeAttribute")
-
     // These are Parse reserved properties and we won't send them.
     if ( 'createdAt' === key ||
          'updatedAt' === key ||
@@ -197,10 +159,8 @@ export default DS.RESTSerializer.extend({
   },
 
   serializeBelongsTo: function( record, json, relationship ) {
-    //console.log("serializeBelongsTo")
-
     var key       = relationship.key,
-      belongsTo = record.get( key );
+      belongsTo = record.belongsTo( key );
 
     if ( belongsTo ) {
       // @TODO: Perhaps this is working around a bug in Ember-Data? Why should
@@ -209,21 +169,19 @@ export default DS.RESTSerializer.extend({
         if ( !belongsTo.get('isFulfilled' ) ) {
           throw new Error( 'belongsTo values *must* be fulfilled before attempting to serialize them' );
         }
-
+        debugger;
         belongsTo = belongsTo.get( 'content' );
       }
 
       json[key] = {
         '__type'    : 'Pointer',
-        'className' : this.parseClassName( belongsTo.constructor.modelName ),
-        'objectId'  : belongsTo.get( 'id' )
+        'className' : this.parseClassName( belongsTo.modelName ),
+        'objectId'  : belongsTo.id
       };
     }
   },
 
   parseClassName: function( key ) {
-    //console.log("parseClassName")
-
     if ( 'parseUser' === key) {
       return '_User';
 
@@ -236,7 +194,7 @@ export default DS.RESTSerializer.extend({
     console.log("serializeHasMany")
 
     var key     = relationship.key,
-      hasMany = record.get( key ),
+      hasMany = record.hasMany( key ),
       options = relationship.options;
 
     if ( hasMany && hasMany.get( 'length' ) > 0 ) {

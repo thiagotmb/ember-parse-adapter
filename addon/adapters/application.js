@@ -32,7 +32,6 @@ export default DS.RESTAdapter.extend({
   // Using TitleStyle is recommended by Parse
   // @TODO: test
   parsePathForType: function( type ) {
-      console.log("parse path for type")
     return Ember.String.capitalize( Ember.String.camelize( type ) );
   },
 
@@ -43,8 +42,6 @@ export default DS.RESTAdapter.extend({
   * latest data.
   */
   createRecord: function( store, type, record ) {
-
-    console.log("createRecord")
     var serializer = store.serializerFor( type.modelName ),
       data       = {},
       adapter    = this;
@@ -71,9 +68,6 @@ export default DS.RESTAdapter.extend({
   * latest data.
   */
   updateRecord: function(store, type, record) {
-
-    console.log("updateRecord")
-
     var serializer  = store.serializerFor( type.modelName ),
       id          = Ember.get(record, "id"),
       sendDeletes = false,
@@ -97,10 +91,7 @@ export default DS.RESTAdapter.extend({
           function() {
             adapter.ajax( adapter.buildURL( type.modelName, id ), 'PUT', { data: data } ).then(
               function( updates ) {
-                console.log("sendDeletes")
-                console.log(data)
-                console.log(updates)
-                // This is the essential bit - merge response data onto existing data.
+              // This is the essential bit - merge response data onto existing data.
                 resolve( Ember.merge( data, updates ) );
               },
               function( reason ) {
@@ -116,8 +107,6 @@ export default DS.RESTAdapter.extend({
       } else {
         adapter.ajax( adapter.buildURL( type.modelName, id ), 'PUT', { data: data } ).then(
           function( json ) {
-            console.log("setupIUpdate")
-            console.log(json)
             // This is the essential bit - merge response data onto existing data.
             resolve( Ember.merge( data, json ) );
           },
@@ -130,8 +119,6 @@ export default DS.RESTAdapter.extend({
   },
 
   parseClassName: function (key ) {
-    console.log("parseClassName")
-
     return Ember.String.capitalize( key );
   },
 
@@ -151,9 +138,6 @@ debugger
   * objects.
   */
   findHasMany: function( store, record, relatedInfo, url ) {
-    console.log("findHasMany")
-    debugger;
-
     var query = {
         where: {
           '$relatedTo': {
@@ -188,7 +172,6 @@ debugger
   *     });
   */
   query: function ( store, type, query ) {
-    console.log("query")
     if ( query.where && 'string' !== Ember.typeOf( query.where ) ) {
       query.where = JSON.stringify( query.where );
     }
